@@ -1,0 +1,227 @@
+# How to Contribute Cards
+
+Thanks for helping build the UBC IAA Anki deck. The short version is:
+
+1. Add your card rows to the right Excel file.
+2. Add the matching images to the matching image folder.
+3. Review other's work to make sure we make the best ANKI deck that exists!
+
+This guide explains the details.
+
+## Where Things Go
+
+Course content lives in the `Anatomy drive/` folder.
+
+For each course, there is an Excel file:
+
+```text
+Anatomy drive/MEDD_411_content.xlsx
+Anatomy drive/MEDD_412_content.xlsx
+```
+
+Images live nearby in course folders:
+
+```text
+Anatomy drive/MEDD_411_images/
+Anatomy drive/MEDD_412_images/
+```
+
+Inside each workbook, each lab gets its own sheet. For example:
+
+```text
+Lab2_spine
+Lab1_Cranial_Cavity
+```
+
+The `SAMPLE` sheet is just an example. The deck builder ignores it.
+
+## Adding a Card
+
+Each row in a lab sheet becomes one Anki card.
+
+Fill in these columns:
+
+| Column | What to put there |
+| --- | --------- |
+| `file name` | The image name, without `_P` and without `.jpg`/`.png`. |
+| `Question` | The prompt, like `Identify` or `What passes through this opening?`, keep the questions similiar to what is asked on a bellringer. |
+| `Answer` | The answer students should recall. |
+| `Tag` | Usually `primary` or `secondary`. Add extra tags like `clinical` if useful. |
+| `Attribution` | Etimology, fun facts, etc, if needed. |
+| `Comment` | Notes for other contributors or reviewers. This does not show up on the card. |
+
+Example:
+
+| file name | Question | Answer | Tag | Attribution |
+| --- | --- | --- | --- | --- |
+| `anterior_ramus` | `Identify` | `anterior ramus` | `primary` | |
+| `anterior_ramus` | `What nerve modalities are carried by this structure?` | `general sensory, visceral sensory, general motor, visceral motor` | `secondary` | |
+
+The other columns, like `Image_Author`, `Reviewer`, and `Final approval`, are
+for tracking who worked on the card. Fill them depending on your role.
+
+## Adding the Image
+
+The builder finds images by name. This is the easiest place to mess up, so check
+this carefully.
+
+Use underscores instead of spaces in file names.
+
+Good:
+
+```text
+middle_meningeal_artery
+```
+
+Bad:
+
+```text
+middle meningeal artery
+```
+
+If your spreadsheet says:
+
+```text
+anterior_ramus
+```
+
+then the image file should be named:
+
+```text
+anterior_ramus_P.jpg
+```
+
+The `_P` matters. The spreadsheet does not include `_P`, but the image file does.
+
+Good:
+
+```text
+file name column: anterior_ramus
+image file:       anterior_ramus_P.jpg
+```
+
+Bad:
+
+```text
+file name column: anterior_ramus_P
+image file:       anterior_ramus.jpg
+```
+
+Supported image types are `.jpg`, `.jpeg`, `.png`, `.gif`, and `.webp`.
+
+If you have multiple images for the same structure, number the extra files with
+`_1`, `_2`, and so on:
+
+```text
+filum_terminale_P.jpg
+filum_terminale_1.jpg
+filum_terminale_2.jpg
+```
+
+Use the main `_P` image for the spreadsheet row. The numbered images can stay in
+the folder as extra/reference images or to be used for mock bellringer exams.
+
+Keeping images inside the right course and lab folder makes life easier but its not neceessary:
+
+```text
+Anatomy drive/MEDD_411_images/Lab2_spine/anterior_ramus_P.jpg
+```
+
+## Tags and Decks
+
+If a row has the tag `primary`, it goes into the `Primary` deck.
+
+Everything else goes into the `Secondary` deck.
+
+So this:
+
+```text
+Tag: primary
+```
+
+goes here:
+
+```text
+UBC-IAA::MEDD 411::Lab 2 Spine::Primary
+```
+
+And this:
+
+```text
+Tag: secondary
+```
+
+goes here:
+
+```text
+UBC-IAA::MEDD 411::Lab 2 Spine::Secondary
+```
+
+Use `primary` for basic identification cards. Use `secondary` for follow-up,
+clinical, explanation, or integration questions.
+
+> If you want to add several tags do so using a `;`. Example: `secondary; clinical`.
+
+## Building the Deck
+
+First install the Python dependencies:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+```
+
+Then build the deck:
+
+```bash
+.venv/bin/python build_anki_deck.py
+```
+
+This creates:
+
+```text
+UBC-IAA.apkg
+error.csv
+```
+
+Import `UBC-IAA.apkg` into Anki to test the cards.
+
+If `.venv/bin/python` does not work, recreate the virtual environment on your
+own computer. Virtual environments often break when a project folder gets moved
+between machines.
+
+## Checking for Problems
+
+Always open `error.csv` after building.
+
+If a row appears in `error.csv`, that row was skipped and did not make it into
+the Anki deck.
+
+Common fixes:
+
+| Error | Fix |
+| --- | --- |
+| `no file name specified` | Add the image name in the `file name` column. |
+| `no question specified` | Add a question. |
+| `no answer specified` | Add an answer. |
+| `image could not be found` | Check that the image file exists and ends in `_P`. |
+
+## Before You Submit
+
+Quick checklist:
+
+- Your rows are in the correct course workbook.
+- Your rows are in the correct lab sheet.
+- Every finished row has `file name`, `Question`, and `Answer`.
+- File names use underscores instead of spaces.
+- Every image file ends in `_P`.
+- Extra images for the same structure are named with `_1`, `_2`, etc.
+- The spreadsheet image name matches the image file name.
+- Primary ID cards are tagged `primary`.
+- Clinical or follow-up cards are tagged clearly.
+- You ran `build_anki_deck.py`.
+- You checked `error.csv`.
+- You imported the deck into Anki and made sure the images show up.
+
+That is it. If the deck builds, `error.csv` looks expected, and the cards look
+right in Anki, you are good.
