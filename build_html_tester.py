@@ -34,7 +34,7 @@ def safe_name(text):
     return re.sub(r"[^A-Za-z0-9]+", "_", text).strip("_")
 
 
-def variant_key(path):
+def image_edition_key(path):
     stem = path.stem
     if stem.endswith("_P"):
         return stem[:-2]
@@ -59,11 +59,11 @@ def metadata_line(metadata, labels):
     return " | ".join(f"{label}: {'; '.join(metadata[label])}" for label in labels)
 
 
-def index_image_variants(image_root):
+def index_image_editions(image_root):
     images = {}
     for path in image_root.rglob("*"):
         if path.suffix.lower() in IMAGE_EXTS:
-            images.setdefault(variant_key(path), []).append(path)
+            images.setdefault(image_edition_key(path), []).append(path)
 
     for paths in images.values():
         paths.sort(key=lambda path: (not path.stem.endswith("_P"), path.stem))
@@ -72,7 +72,7 @@ def index_image_variants(image_root):
 
 
 def collect_decks():
-    images = index_image_variants(IMAGE_DIR)
+    image_editions = index_image_editions(IMAGE_DIR)
     decks = {}
     skipped = 0
 
@@ -86,7 +86,7 @@ def collect_decks():
             question = value(row, headers, "question")
             answer = value(row, headers, "answer")
             key = image_key(file_name) if file_name else ""
-            image_paths = images.get(key, [])
+            image_paths = image_editions.get(key, [])
 
             if not file_name or not question or not answer or not image_paths:
                 skipped += 1
@@ -548,15 +548,18 @@ def write_deck(course, sheet, pages):
         slide.classList.toggle("active", slide === activeSlides[currentStation]);
       }});
       document.getElementById("prev-station").disabled = currentStation === 0;
-      document.getElementById("next-station").textContent = currentStation === activeSlides.length - 1 ? "Finish" : "Next";
-      document.getElementById("station-progress").textContent = `Station ${{currentStation + 1}} / ${{activeSlides.length}}`;
+      const isLastStation = currentStation === activeSlides.length - 1;
+      document.getElementById("next-station").textContent = isLastStation ? "Finish" : "Next";
+      document.getElementById("station-progress").textContent =
+        `Station ${{currentStation + 1}} / ${{activeSlides.length}}`;
       activeSlides[currentStation]?.querySelector("textarea")?.focus();
       startTimerFor(activeSlides[currentStation]);
     }}
 
     function startTest() {{
       const mode = document.querySelector('input[name="test-mode"]:checked').value;
-      activeSlides = mode === "ten" ? shuffle(slides).slice(0, Math.min(10, slides.length)) : [...slides];
+      activeSlides =
+        mode === "ten" ? shuffle(slides).slice(0, Math.min(10, slides.length)) : [...slides];
       currentStation = 0;
       slides.forEach((slide) => slide.classList.remove("active"));
       document.body.classList.remove("results");
@@ -700,10 +703,11 @@ def write_deck(course, sheet, pages):
           const grade = form.dataset.grade || "missed";
           totals[grade] = (totals[grade] || 0) + 1;
           if (!student) totals.blank += 1;
+          const studentText = escapeHtml(student || "(blank)");
           return `
             <div class="review-item">
               <p><strong>Question:</strong> ${{escapeHtml(form.querySelector(".question").textContent)}}</p>
-              <p><strong>Your answer:</strong> <span class="student-answer">${{escapeHtml(student || "(blank)")}}</span></p>
+              <p><strong>Your answer:</strong> <span class="student-answer">${{studentText}}</span></p>
               <p><strong>Correct answer:</strong> ${{escapeHtml(form.dataset.answer)}}</p>
               <p><strong>Grade:</strong> ${{escapeHtml(form.dataset.gradeLabel || "Check answer")}}</p>
             </div>

@@ -25,7 +25,6 @@
           ########### Python pacakges ############
           python312Packages.pillow
           python312Packages.genanki
-          python312Packages.reportlab
           python312Packages.matplotlib
           python312Packages.numpy
           python312Packages.pandas

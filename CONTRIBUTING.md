@@ -57,8 +57,9 @@ Example:
 | `anterior_ramus` | `Identify` | `anterior ramus` | `primary` | |
 | `anterior_ramus` | `What nerve modalities are carried by this structure?` | `general sensory, visceral sensory, general motor, visceral motor` | `secondary` | |
 
-The other columns, like `Image_Author`, `Reviewer`, and `Final approval`, are
-for tracking who worked on the card. Fill them depending on your role.
+Cards with a filled `Reviewer` cell are tagged `reviewed`; cards without one
+are tagged `unreviewed`. Cards with a filled `Final approval` cell are tagged
+`approved`; cards without one are tagged `unapproved`.
 
 ## Adding the Image
 
@@ -142,7 +143,7 @@ Tag: primary
 goes here:
 
 ```text
-UBC-IAA::MEDD 411::Lab 2 Spine::Primary
+UBC-IAA::Anatomy::MEDD 411::Lab 2 Spine::Primary
 ```
 
 And this:
@@ -154,11 +155,12 @@ Tag: secondary
 goes here:
 
 ```text
-UBC-IAA::MEDD 411::Lab 2 Spine::Secondary
+UBC-IAA::Anatomy::MEDD 411::Lab 2 Spine::Secondary
 ```
 
 Use `primary` for basic identification cards. Use `secondary` for follow-up,
 clinical, explanation, or integration questions.
+
 
 > If you want to add several tags do so using a `;`. Example: `secondary; clinical`.
 

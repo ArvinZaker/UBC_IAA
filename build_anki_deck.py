@@ -14,7 +14,7 @@ import genanki
 NS = {"x": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 RID = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
-DECK_ROOT = "UBC-IAA"
+DECK_ROOT = "UBC-IAA::Anatomy"
 INPUT_DIR = Path("Anatomy drive")
 IMAGE_DIR = Path("Anatomy drive")
 OUTPUT_FILE = Path("UBC-IAA.apkg")
@@ -125,8 +125,12 @@ def clean_tag(text):
 
 
 def row_tags(tag_text, course, sheet):
-    raw_tags = re.split(r"[;,]", tag_text)
-    tags = [clean_tag(tag.lower()) for tag in raw_tags if clean_tag(tag)]
+    tags = []
+    for raw_tag in re.split(r"[;,]", tag_text):
+        tag = clean_tag(raw_tag.lower())
+        if tag:
+            tags.append(tag)
+
     tags += [clean_tag(course.replace(" ", "_")), clean_tag(sheet)]
     return sorted(set(tags))
 
@@ -244,6 +248,19 @@ def row_extras(row, headers):
     return "<b>Extras</b><br>" + "<br>".join(items)
 
 
+def error_row(xlsx_path, sheet, row_number, file_name, question, answer, tag_text, reason):
+    return {
+        "workbook": xlsx_path.name,
+        "sheet": sheet,
+        "row": row_number,
+        "file_name": file_name,
+        "question": question,
+        "answer": answer,
+        "tax": tag_text,
+        "reason": reason,
+    }
+
+
 def make_model():
     return genanki.Model(
         1607392319,
@@ -284,9 +301,6 @@ def make_model():
 
 def build_package():
     model = make_model()
-    images = index_images(IMAGE_DIR)
-    lowercase_primary_images = index_lowercase_primary_images(IMAGE_DIR)
-    variant_images = index_variant_images(IMAGE_DIR)
     decks = {DECK_ROOT: genanki.Deck(deck_id(DECK_ROOT), DECK_ROOT)}
     errors = []
     media_files = set()
@@ -300,6 +314,16 @@ def build_package():
 
         for xlsx_path in sorted(INPUT_DIR.glob("MEDD_*_content.xlsx")):
             course = course_name(xlsx_path)
+            course_deck_name = f"{DECK_ROOT}::{course}"
+            decks.setdefault(
+                course_deck_name,
+                genanki.Deck(deck_id(course_deck_name), course_deck_name),
+            )
+            course_number = course.removeprefix("MEDD ")
+            course_image_dir = IMAGE_DIR / f"MEDD_{course_number}_images"
+            images = index_images(course_image_dir)
+            lowercase_primary_images = index_lowercase_primary_images(course_image_dir)
+            variant_images = index_variant_images(course_image_dir)
             for sheet, row_number, headers, row in workbook_rows(xlsx_path):
                 if row_is_empty(row):
                     continue
@@ -334,31 +358,31 @@ def build_package():
 
                 if reasons:
                     errors.append(
-                        {
-                            "workbook": xlsx_path.name,
-                            "sheet": sheet,
-                            "row": row_number,
-                            "file_name": file_name,
-                            "question": question,
-                            "answer": answer,
-                            "tax": tag_text,
-                            "reason": "; ".join(reasons),
-                        }
+                        error_row(
+                            xlsx_path,
+                            sheet,
+                            row_number,
+                            file_name,
+                            question,
+                            answer,
+                            tag_text,
+                            "; ".join(reasons),
+                        )
                     )
                     continue
 
                 if fallback_reason:
                     errors.append(
-                        {
-                            "workbook": xlsx_path.name,
-                            "sheet": sheet,
-                            "row": row_number,
-                            "file_name": file_name,
-                            "question": question,
-                            "answer": answer,
-                            "tax": tag_text,
-                            "reason": fallback_reason,
-                        }
+                        error_row(
+                            xlsx_path,
+                            sheet,
+                            row_number,
+                            file_name,
+                            question,
+                            answer,
+                            tag_text,
+                            fallback_reason,
+                        )
                     )
 
                 if image_path not in optimized_images:
