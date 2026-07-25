@@ -14,6 +14,7 @@ from build_anki_deck import (
     index_lowercase_primary_images,
     index_variant_images,
     row_is_empty,
+    split_people,
     value,
     workbook_rows,
 )
@@ -59,8 +60,16 @@ for workbook in sorted(INPUT_DIR.glob("MEDD_*_content.xlsx")):
             )
 
 groups = Counter(card["group"] for card in cards)
-authors = Counter(card["author"] for card in cards if card["author"])
-reviewers = Counter(card["reviewer"] for card in cards if card["reviewer"])
+authors = Counter(
+    author
+    for card in cards
+    for author in split_people(card["author"])
+)
+reviewers = Counter(
+    reviewer
+    for card in cards
+    for reviewer in split_people(card["reviewer"])
+)
 reviewed = sum(bool(card["reviewer"]) for card in cards)
 faculty_reviewed = sum(bool(card["faculty"]) for card in cards)
 

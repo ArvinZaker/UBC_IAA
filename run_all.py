@@ -12,8 +12,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent
 DEFAULT_SCRIPTS = [
     "build_anki_deck.py",
-    "build_html_decks.py",
-    "build_html_tester.py",
+    "generate_project_status.py",
 ]
 
 

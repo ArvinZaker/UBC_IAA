@@ -23,7 +23,7 @@ IMAGE_MAX_EDGE = 1800
 IMAGE_JPEG_QUALITY = 82
 EXTRA_FIELDS = [
     ("Attribution", ("attribution",)),
-    ("Image author", ("image_author", "author")),
+    ("Authors", ("authors", "author")),
     ("Attribution author", ("attribution_author",)),
     ("Reviewer", ("reviewer",)),
     ("Final approval", ("final approval",)),
@@ -122,6 +122,10 @@ def lab_name(sheet_name):
 
 def clean_tag(text):
     return re.sub(r"[^A-Za-z0-9_:-]+", "_", text.strip()).strip("_")
+
+
+def split_people(text):
+    return [name.strip() for name in text.split(";") if name.strip()]
 
 
 def row_tags(tag_text, course, sheet):

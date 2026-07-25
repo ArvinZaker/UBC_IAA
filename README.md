@@ -6,7 +6,9 @@
 
 The UBC Integrated Anatomy Atlas (UBC IAA) is a student-led educational resource developed in collaboration with UBC anatomy faculty to support anatomy learning throughout the preclinical MD curriculum. The project combines high-quality anatomy images with curriculum-aligned questions to create a standardized study resource available in multiple formats.
 
-This repository contains the automated pipeline used to generate all UBC IAA learning resources. The pipeline builds Anki flashcards, interactive HTML study pages, type-your-answer bell-ringer practice tests, and project progress reports while maintaining a consistent structure across all outputs.
+This repository contains the automated pipeline used to generate the UBC IAA
+Anki deck and project progress report while maintaining a consistent structure
+across all outputs.
 
 By centralizing content generation, contributors can update course spreadsheets and images once, then automatically regenerate every learning resource. This reduces manual work, improves consistency, and simplifies maintenance as the atlas continues to expand.
 
@@ -134,22 +136,6 @@ When the build finishes, the project folder will contain `UBC-IAA.apkg` and
 
 ## Optional technical commands
 
-### Build the HTML study decks
-
-```bash
-python build_html_decks.py
-```
-
-The script writes clickable hide/show study decks into `htmls/`.
-
-### Build the HTML testers
-
-```bash
-python build_html_tester.py
-```
-
-The script writes type-your-answer tester pages into `html_tests/`.
-
 ### Regenerate the project-status image
 
 ```bash
@@ -162,5 +148,5 @@ python generate_project_status.py
 python run_all.py
 ```
 
-The script runs the Anki, HTML study deck, and HTML tester builders.
+The script runs the Anki deck and project-status builders.
 Use `--continue-on-error` to keep going after a failed builder.

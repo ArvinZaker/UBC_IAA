@@ -46,8 +46,10 @@ Fill in these columns:
 | `file name` | The image name, without `_P` and without `.jpg`/`.png`. |
 | `Question` | The prompt, like `Identify` or `What passes through this opening?`, keep the questions similiar to what is asked on a bellringer. |
 | `Answer` | The answer students should recall. |
-| `Tag` | Usually `primary` or `secondary`. Add extra tags like `clinical` if useful. |
+| `Tag` | Usually `primary` or `secondary`. Separate multiple tags with a semicolon (`;`), for example `secondary; clinical`. |
 | `Attribution` | Etimology, references, etc, if needed. |
+| `Authors` | The card author or authors. Separate multiple authors with a semicolon (`;`). |
+| `Reviewer` | The reviewer or reviewers. Separate multiple reviewers with a semicolon (`;`). |
 | `Comment` | Notes for other contributors or reviewers. This does not show up on the card. |
 
 Example:
@@ -57,9 +59,9 @@ Example:
 | `anterior_ramus` | `Identify` | `anterior ramus` | `primary` | |
 | `anterior_ramus` | `What nerve modalities are carried by this structure?` | `general sensory, visceral sensory, general motor, visceral motor` | `secondary` | |
 
-Cards with a filled `Reviewer` cell are tagged `reviewed`; cards without one
-are tagged `unreviewed`. Cards with a filled `Final approval` cell are tagged
-`approved`; cards without one are tagged `unapproved`.
+Cards with one or more names in the `Reviewer` cell are tagged `reviewed`;
+cards without one are tagged `unreviewed`. Cards with a filled `Final approval`
+cell are tagged `approved`; cards without one are tagged `unapproved`.
 
 ## Adding the Image
 
@@ -167,7 +169,13 @@ Use `primary` for basic identification cards. Use `secondary` for follow-up,
 clinical, explanation, or integration questions.
 
 
-> If you want to add several tags do so using a `;`. Example: `secondary; clinical`.
+Use a semicolon (`;`) to separate multiple tags, authors, or reviewers:
+
+```text
+Tag:      secondary; clinical
+Authors:  Alex Chen; Sam Lee
+Reviewer: Priya Shah; Taylor Wong
+```
 
 ## Building the Deck
 
@@ -226,6 +234,7 @@ Quick checklist:
 - [ ] The spreadsheet image name matches the image file name.
 - [ ] Primary ID cards are tagged `primary`.
 - [ ] Clinical or follow-up cards are tagged clearly.
+- [ ] Multiple tags, authors, or reviewers are separated with a semicolon (`;`).
 - [ ] You ran `build_anki_deck.py`.
 - [ ] You checked `error.csv`.
 - [ ] You imported the deck into Anki and made sure the images show up.
