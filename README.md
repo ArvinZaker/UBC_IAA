@@ -1,6 +1,6 @@
 # UBC Integrated Anatomy Atlas (UBC IAA)
 
-![UBC IAA anatomy deck project status](project_status.png)
+![UBC IAA atlas deck project status](project_status.png)
 
 ## Introduction
 
@@ -16,9 +16,11 @@ By centralizing content generation, contributors can update course spreadsheets 
 
 [Download the latest UBC IAA Anki deck](https://drive.google.com/drive/folders/16NqVKhlYowYreh6T2Xh8ZqJlWgYB9zbg?usp=sharing).
 
-Download `UBC-IAA.apkg`, then open the file to import it into Anki. Updates are
-not installed automatically; download and import the newest package when a new
-version is released.
+Download `UBC-IAA-all.apkg` for the complete atlas, or choose a modality subset
+such as `UBC-IAA-anatomy.apkg`. The packages share the same notes and deck
+hierarchy, so you can switch between the complete and subset packages without
+creating duplicate cards. Updates are not installed automatically; download
+and import the newest package when a new version is released.
 
 ## For contributors
 
@@ -80,7 +82,8 @@ Copy, paste, and run:
 If the existing `.venv` is broken or uses another Python version, the script
 moves it to a timestamped `.venv.incompatible.*` backup and creates a clean
 Python 3.12 environment. When the build finishes, the project folder will
-contain `UBC-IAA.apkg`, `error.csv`, and `project_status.png`.
+contain `UBC-IAA-all.apkg`, one `UBC-IAA-<modality>.apkg` subset for each
+available drive, `error.csv`, and `project_status.png`.
 
 ## Optional technical commands
 

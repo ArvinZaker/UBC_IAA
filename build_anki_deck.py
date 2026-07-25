@@ -16,7 +16,6 @@ RID = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 ATLAS_ROOT = "UBC-IAA"
 SOURCE_ROOT = Path(".")
-OUTPUT_FILE = Path("UBC-IAA.apkg")
 ERROR_FILE = Path("error.csv")
 IMAGE_MAX_EDGE = 1800
 IMAGE_JPEG_QUALITY = 82
@@ -150,6 +149,11 @@ def lab_name(sheet_name):
 
 def clean_tag(text):
     return re.sub(r"[^A-Za-z0-9_:-]+", "_", text.strip()).strip("_")
+
+
+def package_path(name):
+    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+    return Path(f"UBC-IAA-{slug}.apkg")
 
 
 def split_people(text):
@@ -347,6 +351,8 @@ def build_package():
     decks = {ATLAS_ROOT: genanki.Deck(deck_id(ATLAS_ROOT), ATLAS_ROOT)}
     errors = []
     media_files = set()
+    media_files_by_modality = {}
+    deck_names_by_modality = {}
     optimized_images = {}
     original_media_bytes = 0
     optimized_media_bytes = 0
@@ -358,12 +364,18 @@ def build_package():
         for xlsx_path in content_workbooks():
             modality = modality_name(xlsx_path)
             course = course_name(xlsx_path)
+            modality_media = media_files_by_modality.setdefault(modality, set())
+            modality_deck_names = deck_names_by_modality.setdefault(
+                modality, {ATLAS_ROOT}
+            )
             modality_deck_name = f"{ATLAS_ROOT}::{modality}"
+            modality_deck_names.add(modality_deck_name)
             decks.setdefault(
                 modality_deck_name,
                 genanki.Deck(deck_id(modality_deck_name), modality_deck_name),
             )
             course_deck_name = f"{modality_deck_name}::{course}"
+            modality_deck_names.add(course_deck_name)
             decks.setdefault(
                 course_deck_name,
                 genanki.Deck(deck_id(course_deck_name), course_deck_name),
@@ -448,6 +460,7 @@ def build_package():
                     deck_name,
                     genanki.Deck(deck_id(deck_name), deck_name),
                 )
+                modality_deck_names.add(deck_name)
 
                 image_html = f'<img src="{html.escape(media_path.name)}">'
                 attribution = value(row, headers, "attribution")
@@ -473,6 +486,7 @@ def build_package():
                 )
                 deck.add_note(note)
                 media_files.add(str(media_path))
+                modality_media.add(str(media_path))
                 added += 1
 
         with ERROR_FILE.open("w", newline="") as file:
@@ -481,10 +495,25 @@ def build_package():
             writer.writeheader()
             writer.writerows(errors)
 
-        genanki.Package(list(decks.values()), media_files=sorted(media_files)).write_to_file(OUTPUT_FILE)
+        output_files = [package_path("all")]
+        genanki.Package(
+            list(decks.values()), media_files=sorted(media_files)
+        ).write_to_file(output_files[0])
+
+        for modality in sorted(deck_names_by_modality):
+            output_file = package_path(modality)
+            modality_decks = [
+                decks[name] for name in sorted(deck_names_by_modality[modality])
+            ]
+            genanki.Package(
+                modality_decks,
+                media_files=sorted(media_files_by_modality[modality]),
+            ).write_to_file(output_file)
+            output_files.append(output_file)
 
     saved_media_bytes = original_media_bytes - optimized_media_bytes
-    print(f"Wrote {OUTPUT_FILE}")
+    for output_file in output_files:
+        print(f"Wrote {output_file}")
     print(f"Wrote {ERROR_FILE}")
     print(f"Cards: {added}")
     print(f"Skipped rows: {len(errors)}")

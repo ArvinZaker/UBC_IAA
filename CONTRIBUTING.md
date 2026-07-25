@@ -206,11 +206,15 @@ Then build the deck:
 This creates:
 
 ```text
-UBC-IAA.apkg
+UBC-IAA-all.apkg
+UBC-IAA-anatomy.apkg
 error.csv
 ```
 
-Import `UBC-IAA.apkg` into Anki to test the cards.
+Import `UBC-IAA-all.apkg` to test the complete atlas or the relevant
+`UBC-IAA-<modality>.apkg` subset. All packages use the same card identifiers
+and deck hierarchy, so importing a subset and the complete atlas does not
+duplicate shared cards.
 
 If `.venv/bin/python` does not work, recreate the virtual environment on your
 own computer. Virtual environments often break when a project folder gets moved
