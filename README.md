@@ -164,7 +164,3 @@ python run_all.py
 
 The script runs the Anki, HTML study deck, and HTML tester builders.
 Use `--continue-on-error` to keep going after a failed builder.
-
-### Archived tools
-
-The old PDF deck builder lives at `archive/build_pdf_decks.py`.
