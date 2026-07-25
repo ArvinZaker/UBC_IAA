@@ -22,14 +22,14 @@ images.
 
 | File | What it contains | Who should use it |
 | --- | --- | --- |
-| `UBC-IAA-all.apkg` | Every available UBC IAA modality and course. It currently contains Anatomy and will automatically include Radio, Ophtho, and other modalities when their drives are added. | Recommended for students who want the complete atlas. |
-| `UBC-IAA-anatomy.apkg` | Only material from `Anatomy drive/`, including all available MEDD Anatomy courses. | Students who only want the Anatomy portion or need a smaller download. |
-| `UBC-IAA-radio.apkg` | Only material from `Radio drive/`. This file will be generated once that drive contains course material. | Students who only want the Radiology portion. |
-| `UBC-IAA-ophtho.apkg` | Only material from `Ophtho drive/`. This file will be generated once that drive contains course material. | Students who only want the Ophthalmology portion. |
-| `UBC-IAA-<modality>.apkg` | Only material from the matching `<Modality> drive/`. For example, `Dermatology drive/` produces `UBC-IAA-dermatology.apkg`. | Students who want any other single-modality subset. |
+| `UBC-IAA-all.apkg` | Every subject and course currently available in the UBC IAA. | Recommended for students who want the complete atlas. |
+| `UBC-IAA-anatomy.apkg` | All available Anatomy courses and cards. | Students who only want Anatomy or need a smaller download. |
+| `UBC-IAA-radio.apkg` | All available Radiology courses and cards. | Students who only want Radiology. This option will appear when Radiology content is released. |
+| `UBC-IAA-ophtho.apkg` | All available Ophthalmology courses and cards. | Students who only want Ophthalmology. This option will appear when Ophthalmology content is released. |
+| `UBC-IAA-<subject>.apkg` | All available cards for the subject named in the file. | Students who want another single-subject subset when one is available. |
 
-The word `all` means the complete atlas. A modality name such as `anatomy`
-means that the file is a subset containing only that modality.
+The word `all` means the complete atlas. A subject name such as `anatomy`
+means that the file contains only that subject.
 
 Every package uses the same card identifiers and internal deck structure:
 
