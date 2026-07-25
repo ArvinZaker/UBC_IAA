@@ -1,3 +1,11 @@
+archive
+html
+Anatomy drive/
+.codex
+codex
+codex/
+UBC-IAA.apkg
+.DS_Store
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

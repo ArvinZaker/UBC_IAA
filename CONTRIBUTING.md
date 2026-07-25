@@ -26,6 +26,12 @@ Anatomy drive/MEDD_411_images/
 Anatomy drive/MEDD_412_images/
 ```
 
+For missing structures, first check the pre-annotated Michigan University
+archive at `/home/arvin/2TBstorage/University/anatomy-images/michigan/FLEX 449_ Michigan University Images_ Dec 2021/`.
+Prefer an unambiguous image that already contains arrows. If no such image
+exists, use the agentic image-alignment and annotation workflow documented in
+`ANATOMY_IMAGE_ANNOTATION_INSTRUCTIONS.md`.
+
 Inside each workbook, each lab gets its own sheet. For example:
 
 ```text
@@ -128,6 +134,11 @@ Keeping images inside the right course and lab folder makes life easier but its 
 Anatomy drive/MEDD_411_images/Lab2_spine/anterior_ramus_P.jpg
 ```
 
+When adding a pre-annotated or agentically annotated image, place it in the
+matching `MEDD_xxx_images/Lab.../` folder for the workbook and sheet that use
+it. Do not place a structure in a different course or lab merely because the
+filename matches.
+
 ## Tags and Decks
 
 If a row has the tag `primary`, it goes into the `Primary` deck.
@@ -212,18 +223,18 @@ Common fixes:
 
 Quick checklist:
 
-- Your rows are in the correct course workbook.
-- Your rows are in the correct lab sheet.
-- Every finished row has `file name`, `Question`, and `Answer`.
-- File names use underscores instead of spaces.
-- Every image file ends in `_P`.
-- Extra images for the same structure are named with `_1`, `_2`, etc.
-- The spreadsheet image name matches the image file name.
-- Primary ID cards are tagged `primary`.
-- Clinical or follow-up cards are tagged clearly.
-- You ran `build_anki_deck.py`.
-- You checked `error.csv`.
-- You imported the deck into Anki and made sure the images show up.
+- [ ] Your rows are in the correct course workbook.
+- [ ] Your rows are in the correct lab sheet.
+- [ ] Every finished row has `file name`, `Question`, and `Answer`.
+- [ ] File names use underscores instead of spaces.
+- [ ] Every image file ends in `_P`.
+- [ ] Extra images for the same structure are named with `_1`, `_2`, etc.
+- [ ] The spreadsheet image name matches the image file name.
+- [ ] Primary ID cards are tagged `primary`.
+- [ ] Clinical or follow-up cards are tagged clearly.
+- [ ] You ran `build_anki_deck.py`.
+- [ ] You checked `error.csv`.
+- [ ] You imported the deck into Anki and made sure the images show up.
 
 That is it. If the deck builds, `error.csv` looks expected, and the cards look
 right in Anki, you are good.
