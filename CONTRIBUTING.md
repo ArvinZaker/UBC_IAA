@@ -26,12 +26,6 @@ Anatomy drive/MEDD_411_images/
 Anatomy drive/MEDD_412_images/
 ```
 
-For missing structures, first check the pre-annotated Michigan University
-archive at `/home/arvin/2TBstorage/University/anatomy-images/michigan/FLEX 449_ Michigan University Images_ Dec 2021/`.
-Prefer an unambiguous image that already contains arrows. If no such image
-exists, use the agentic image-alignment and annotation workflow documented in
-`ANATOMY_IMAGE_ANNOTATION_INSTRUCTIONS.md`.
-
 Inside each workbook, each lab gets its own sheet. For example:
 
 ```text
@@ -53,7 +47,7 @@ Fill in these columns:
 | `Question` | The prompt, like `Identify` or `What passes through this opening?`, keep the questions similiar to what is asked on a bellringer. |
 | `Answer` | The answer students should recall. |
 | `Tag` | Usually `primary` or `secondary`. Add extra tags like `clinical` if useful. |
-| `Attribution` | Etimology, fun facts, etc, if needed. |
+| `Attribution` | Etimology, references, etc, if needed. |
 | `Comment` | Notes for other contributors or reviewers. This does not show up on the card. |
 
 Example:
