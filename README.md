@@ -7,8 +7,8 @@
 The UBC Integrated Anatomy Atlas (UBC IAA) is a student-led educational resource developed in collaboration with UBC anatomy faculty to support anatomy learning throughout the preclinical MD curriculum. The project combines high-quality anatomy images with curriculum-aligned questions to create a standardized study resource available in multiple formats.
 
 This repository contains the automated pipeline used to generate the UBC IAA
-Anki deck and project progress report while maintaining a consistent structure
-across all outputs.
+Anki deck and project progress report across anatomy, radiology,
+ophthalmology, and future atlas modalities.
 
 By centralizing content generation, contributors can update course spreadsheets and images once, then automatically regenerate every learning resource. This reduces manual work, improves consistency, and simplifies maintenance as the atlas continues to expand.
 
@@ -31,15 +31,9 @@ rebuild the deck and project-status image.
 
 ## Technical setup
 
-Complete these steps once before running the project:
-
-- [ ] Step 1: Install Python.
-- [ ] Step 2: Open the project folder in a terminal.
-- [ ] Step 3: Confirm that Python works.
-- [ ] Step 4: Create the project environment.
-- [ ] Step 5: Activate the project environment.
-- [ ] Step 6: Install the required packages.
-- [ ] Step 7: Build the Anki deck.
+Install Python 3.12, then open the project folder in a terminal. The build
+script creates and configures `.venv`, installs the required packages, builds
+the Anki deck, and regenerates the project-status image.
 
 When the instructions show a command in a box, copy the command, paste it into
 the terminal, and press Enter. Wait for the terminal prompt to return before
@@ -48,8 +42,10 @@ above a command box.
 
 ### Step 1: Install Python
 
-Download and install Python from [python.org/downloads](https://www.python.org/downloads/).
-On Windows, select **Add Python to PATH** during installation.
+Download and install Python 3.12 from
+[python.org/downloads](https://www.python.org/downloads/). On Windows, select
+**Add Python to PATH** during installation and install Git for Windows so that
+Git Bash is available.
 
 ### Step 2: Open the project folder in a terminal
 
@@ -59,9 +55,8 @@ downloaded as a ZIP file, extract the ZIP before continuing.
 **Windows**
 
 1. Open the `UBC_IAA_pipeline` folder in File Explorer.
-2. Click the address bar at the top of File Explorer.
-3. Type `powershell` and press Enter.
-4. A PowerShell window will open in the correct folder.
+2. Right-click an empty area inside the folder.
+3. Select **Open Git Bash here**.
 
 **macOS or Linux**
 
@@ -74,79 +69,25 @@ downloaded as a ZIP file, extract the ZIP before continuing.
 The terminal is now open in the project folder. Leave it open for all remaining
 steps.
 
-### Step 3: Confirm that Python works
+### Step 3: Build everything
 
 Copy, paste, and run:
 
 ```bash
-python --version
+./run_all.sh
 ```
 
-The command should print a Python version. If it says that Python cannot be
-found, reinstall Python and ensure it is added to PATH.
-
-### Step 4: Create the project environment
-
-Copy, paste, and run:
-
-```bash
-python -m venv .venv
-```
-
-Wait for the command to finish. It creates a hidden `.venv` folder containing
-the project environment.
-
-### Step 5: Activate the project environment
-
-On macOS or Linux, copy, paste, and run:
-
-```bash
-source .venv/bin/activate
-```
-
-On Windows PowerShell, copy, paste, and run:
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-After activation, the terminal prompt should begin with `(.venv)`.
-
-### Step 6: Install the required packages
-
-Run these commands one at a time. The installation may take several minutes:
-
-```bash
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-```
-
-Wait until the terminal prompt returns before continuing.
-
-### Step 7: Build the Anki deck
-
-Copy, paste, and run:
-
-```bash
-python build_anki_deck.py
-```
-
-When the build finishes, the project folder will contain `UBC-IAA.apkg` and
-`error.csv`. The Anki deck is now ready to import and test.
+If the existing `.venv` is broken or uses another Python version, the script
+moves it to a timestamped `.venv.incompatible.*` backup and creates a clean
+Python 3.12 environment. When the build finishes, the project folder will
+contain `UBC-IAA.apkg`, `error.csv`, and `project_status.png`.
 
 ## Optional technical commands
 
 ### Regenerate the project-status image
 
 ```bash
-python generate_project_status.py
+.venv/bin/python generate_project_status.py
 ```
 
-### Build everything
-
-```bash
-python run_all.py
-```
-
-The script runs the Anki deck and project-status builders.
-Use `--continue-on-error` to keep going after a failed builder.
+`run_all.sh` is the supported entrypoint for all builds.

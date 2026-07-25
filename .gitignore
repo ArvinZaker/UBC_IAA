@@ -159,6 +159,7 @@ activemq-data/
 .env
 .envrc
 .venv
+.venv.incompatible.*
 env/
 venv/
 ENV/

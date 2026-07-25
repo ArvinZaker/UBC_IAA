@@ -10,23 +10,34 @@ This guide explains the details.
 
 ## Where Things Go
 
-Course content lives in the `Anatomy drive/` folder.
+Content is organized by modality in folders whose names end in ` drive`, such
+as:
 
-For each course, there is an Excel file:
+```text
+Anatomy drive/
+Radio drive/
+Ophtho drive/
+```
+
+Each course or rotation needs a workbook named `<course>_content.xlsx` and a
+matching image folder named `<course>_images/` in the same modality folder.
+Course names are flexible and do not need to use a `MEDD_4xx` code:
 
 ```text
 Anatomy drive/MEDD_411_content.xlsx
-Anatomy drive/MEDD_412_content.xlsx
-```
-
-Images live nearby in course folders:
-
-```text
 Anatomy drive/MEDD_411_images/
-Anatomy drive/MEDD_412_images/
+Radio drive/Radiology_rotation_content.xlsx
+Radio drive/Radiology_rotation_images/
+Ophtho drive/Ophthalmology_content.xlsx
+Ophtho drive/Ophthalmology_images/
 ```
 
-Inside each workbook, each lab gets its own sheet. For example:
+The part before `_content.xlsx` must exactly match the part before `_images`.
+The builder uses the drive name as the modality and the workbook name as the
+course name in Anki.
+
+Inside each workbook, each lab, block, or rotation section gets its own sheet.
+For example:
 
 ```text
 Lab2_spine

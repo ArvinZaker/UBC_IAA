@@ -14,9 +14,8 @@ import genanki
 NS = {"x": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 RID = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
-DECK_ROOT = "UBC-IAA::Anatomy"
-INPUT_DIR = Path("Anatomy drive")
-IMAGE_DIR = Path("Anatomy drive")
+ATLAS_ROOT = "UBC-IAA"
+SOURCE_ROOT = Path(".")
 OUTPUT_FILE = Path("UBC-IAA.apkg")
 ERROR_FILE = Path("error.csv")
 IMAGE_MAX_EDGE = 1800
@@ -109,9 +108,38 @@ def value(row, headers, *names):
     return ""
 
 
+def display_name(identifier):
+    words = identifier.replace("_", " ").strip().split()
+    return " ".join(word if word.isupper() else word.capitalize() for word in words)
+
+
 def course_name(xlsx_path):
-    match = re.search(r"MEDD[_ ]?(\d+)", xlsx_path.stem, re.I)
-    return f"MEDD {match.group(1)}" if match else xlsx_path.stem
+    identifier = re.sub(r"_content$", "", xlsx_path.stem, flags=re.I)
+    match = re.fullmatch(r"MEDD[_ ]?(\d+)", identifier, re.I)
+    return f"MEDD {match.group(1)}" if match else display_name(identifier)
+
+
+def modality_name(xlsx_path):
+    identifier = re.sub(r"\s+drive$", "", xlsx_path.parent.name, flags=re.I)
+    return display_name(identifier)
+
+
+def image_dir_for_workbook(xlsx_path):
+    identifier = re.sub(r"_content$", "", xlsx_path.stem, flags=re.I)
+    return xlsx_path.parent / f"{identifier}_images"
+
+
+def content_workbooks(source_root=SOURCE_ROOT):
+    workbooks = []
+    for drive_dir in source_root.iterdir():
+        if not drive_dir.is_dir() or not drive_dir.name.lower().endswith(" drive"):
+            continue
+        workbooks.extend(
+            path
+            for path in drive_dir.glob("*_content.xlsx")
+            if not path.name.startswith("~$")
+        )
+    return sorted(workbooks)
 
 
 def lab_name(sheet_name):
@@ -128,14 +156,18 @@ def split_people(text):
     return [name.strip() for name in text.split(";") if name.strip()]
 
 
-def row_tags(tag_text, course, sheet):
+def row_tags(tag_text, modality, course, sheet):
     tags = []
     for raw_tag in re.split(r"[;,]", tag_text):
         tag = clean_tag(raw_tag.lower())
         if tag:
             tags.append(tag)
 
-    tags += [clean_tag(course.replace(" ", "_")), clean_tag(sheet)]
+    tags += [
+        clean_tag(modality.replace(" ", "_")),
+        clean_tag(course.replace(" ", "_")),
+        clean_tag(sheet),
+    ]
     return sorted(set(tags))
 
 
@@ -238,6 +270,13 @@ def deck_id(deck_name):
     return 1_000_000_000 + int(digest[:8], 16)
 
 
+def note_guid(modality, course, sheet, file_name, question, answer):
+    fields = (course, sheet, file_name, question, answer)
+    if modality.lower() == "anatomy":
+        return genanki.guid_for(*fields)
+    return genanki.guid_for(modality, *fields)
+
+
 def row_is_empty(row):
     return not any(cell.strip() for cell in row)
 
@@ -254,7 +293,7 @@ def row_extras(row, headers):
 
 def error_row(xlsx_path, sheet, row_number, file_name, question, answer, tag_text, reason):
     return {
-        "workbook": xlsx_path.name,
+        "workbook": xlsx_path.as_posix(),
         "sheet": sheet,
         "row": row_number,
         "file_name": file_name,
@@ -305,7 +344,7 @@ def make_model():
 
 def build_package():
     model = make_model()
-    decks = {DECK_ROOT: genanki.Deck(deck_id(DECK_ROOT), DECK_ROOT)}
+    decks = {ATLAS_ROOT: genanki.Deck(deck_id(ATLAS_ROOT), ATLAS_ROOT)}
     errors = []
     media_files = set()
     optimized_images = {}
@@ -316,15 +355,20 @@ def build_package():
     with tempfile.TemporaryDirectory() as temp_dir:
         optimized_media_dir = Path(temp_dir) / "anki_media"
 
-        for xlsx_path in sorted(INPUT_DIR.glob("MEDD_*_content.xlsx")):
+        for xlsx_path in content_workbooks():
+            modality = modality_name(xlsx_path)
             course = course_name(xlsx_path)
-            course_deck_name = f"{DECK_ROOT}::{course}"
+            modality_deck_name = f"{ATLAS_ROOT}::{modality}"
+            decks.setdefault(
+                modality_deck_name,
+                genanki.Deck(deck_id(modality_deck_name), modality_deck_name),
+            )
+            course_deck_name = f"{modality_deck_name}::{course}"
             decks.setdefault(
                 course_deck_name,
                 genanki.Deck(deck_id(course_deck_name), course_deck_name),
             )
-            course_number = course.removeprefix("MEDD ")
-            course_image_dir = IMAGE_DIR / f"MEDD_{course_number}_images"
+            course_image_dir = image_dir_for_workbook(xlsx_path)
             images = index_images(course_image_dir)
             lowercase_primary_images = index_lowercase_primary_images(course_image_dir)
             variant_images = index_variant_images(course_image_dir)
@@ -397,7 +441,9 @@ def build_package():
 
                 media_path = optimized_images[image_path]
                 group = card_group(tag_text)
-                deck_name = f"{DECK_ROOT}::{course}::{lab_name(sheet)}::{group}"
+                deck_name = (
+                    f"{ATLAS_ROOT}::{modality}::{course}::{lab_name(sheet)}::{group}"
+                )
                 deck = decks.setdefault(
                     deck_name,
                     genanki.Deck(deck_id(deck_name), deck_name),
@@ -415,8 +461,15 @@ def build_package():
                         html.escape(attribution),
                         extras,
                     ],
-                    tags=sorted(set(row_tags(tag_text, course, sheet) + review_tags(row, headers))),
-                    guid=genanki.guid_for(course, sheet, file_name, question, answer),
+                    tags=sorted(
+                        set(
+                            row_tags(tag_text, modality, course, sheet)
+                            + review_tags(row, headers)
+                        )
+                    ),
+                    guid=note_guid(
+                        modality, course, sheet, file_name, question, answer
+                    ),
                 )
                 deck.add_note(note)
                 media_files.add(str(media_path))

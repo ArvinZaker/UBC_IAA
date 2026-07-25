@@ -5,14 +5,15 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 from build_anki_deck import (
-    IMAGE_DIR,
-    INPUT_DIR,
     card_group,
+    content_workbooks,
     course_name,
     image_key,
+    image_dir_for_workbook,
     index_images,
     index_lowercase_primary_images,
     index_variant_images,
+    modality_name,
     row_is_empty,
     split_people,
     value,
@@ -30,18 +31,19 @@ DARK = "#243447"
 
 cards = []
 courses = set()
-labs = set()
-for workbook in sorted(INPUT_DIR.glob("MEDD_*_content.xlsx")):
+sections = set()
+for workbook in content_workbooks():
+    modality = modality_name(workbook)
     course = course_name(workbook)
-    courses.add(course)
-    image_dir = IMAGE_DIR / f"MEDD_{course.removeprefix('MEDD ')}_images"
+    courses.add((modality, course))
+    image_dir = image_dir_for_workbook(workbook)
     images = index_images(image_dir)
     lowercase_images = index_lowercase_primary_images(image_dir)
     variant_images = index_variant_images(image_dir)
 
     for sheet, _row_number, headers, row in workbook_rows(workbook):
-        if sheet.lower().startswith("lab"):
-            labs.add((course, sheet))
+        if sheet.lower() != "master list":
+            sections.add((modality, course, sheet))
         if row_is_empty(row):
             continue
         file_name = value(row, headers, "file name", "filename", "image", "image link")
@@ -76,13 +78,13 @@ faculty_reviewed = sum(bool(card["faculty"]) for card in cards)
 plt.rcParams.update({"font.family": "DejaVu Sans", "text.color": DARK})
 fig = plt.figure(figsize=(12, 14), facecolor="#F7F4EE")
 fig.text(0.5, 0.955, "UBC IAA", fontsize=38, fontweight="bold", color="#17324D", ha="center")
-fig.text(0.5, 0.915, "ANATOMY DECK", fontsize=17, fontweight="bold", color=TEAL, ha="center")
+fig.text(0.5, 0.915, "ATLAS DECK", fontsize=17, fontweight="bold", color=TEAL, ha="center")
 
 fig.patches.append(plt.Rectangle((0.07, 0.59), 0.39, 0.27, transform=fig.transFigure, color="#17324D", zorder=-1))
 fig.text(0.10, 0.82, "DECK OVERVIEW", fontsize=11, fontweight="bold", color="#B9C8D4")
 for x, y, value_text, label, color in [
     (0.10, 0.75, f"{len(courses)}", "COURSES", "white"),
-    (0.29, 0.75, f"{len(labs)}", "LABS", "#73D2C6"),
+    (0.29, 0.75, f"{len(sections)}", "SECTIONS", "#73D2C6"),
     (0.10, 0.64, f"{len(cards):,}", "BUILD-READY CARDS", "#F2A23A"),
 ]:
     fig.text(x, y, value_text, fontsize=32, fontweight="bold", color=color)
