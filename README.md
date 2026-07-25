@@ -4,11 +4,10 @@
 
 ## Introduction
 
-The UBC Integrated Anatomy Atlas (UBC IAA) is a student-led educational resource developed in collaboration with UBC anatomy faculty to support anatomy learning throughout the preclinical MD curriculum. The project combines high-quality anatomy images with curriculum-aligned questions to create a standardized study resource available in multiple formats.
+The UBC Integrated Anatomy Atlas (UBC IAA) is a student-led educational resource developed in collaboration with UBC faculty to support learning throughout the preclinical MD curriculum. The project combines high-quality images with curriculum-aligned questions to create a standardized study resource available in multiple formats and in multiple topics.
 
 This repository contains the automated pipeline used to generate the UBC IAA
-Anki deck and project progress report across anatomy, radiology,
-ophthalmology, and future atlas modalities.
+Anki deck and project progress report across anatomy and future atlas modalities (radiology, dermatology, ophthalmology).
 
 By centralizing content generation, contributors can update course spreadsheets and images once, then automatically regenerate every learning resource. This reduces manual work, improves consistency, and simplifies maintenance as the atlas continues to expand.
 
