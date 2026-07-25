@@ -20,12 +20,16 @@ By centralizing content generation, contributors can update course spreadsheets 
 An `.apkg` file is a package that you open in Anki to import its cards and
 images.
 
+Currently, only the complete atlas and Anatomy packages are available.
+Radiology and Ophthalmology are under construction and cannot yet be
+downloaded.
+
 | File | What it contains | Who should use it |
 | --- | --- | --- |
 | `UBC-IAA-all.apkg` | Every subject and course currently available in the UBC IAA. | Recommended for students who want the complete atlas. |
 | `UBC-IAA-anatomy.apkg` | All available Anatomy courses and cards. | Students who only want Anatomy or need a smaller download. |
-| `UBC-IAA-radio.apkg` | All available Radiology courses and cards. | Students who only want Radiology. This option will appear when Radiology content is released. |
-| `UBC-IAA-ophtho.apkg` | All available Ophthalmology courses and cards. | Students who only want Ophthalmology. This option will appear when Ophthalmology content is released. |
+| `UBC-IAA-radio.apkg` | **Under construction.** This will contain Radiology courses and cards. | Not yet available. |
+| `UBC-IAA-ophtho.apkg` | **Under construction.** This will contain Ophthalmology courses and cards. | Not yet available. |
 | `UBC-IAA-<subject>.apkg` | All available cards for the subject named in the file. | Students who want another single-subject subset when one is available. |
 
 The word `all` means the complete atlas. A subject name such as `anatomy`
