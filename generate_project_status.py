@@ -86,7 +86,7 @@ fig.suptitle(
     x=0.06,
     y=0.95,
     ha="left",
-    fontsize=24,
+    fontsize=30,
     fontweight="bold",
     color=DARK_BLUE,
 )
@@ -99,7 +99,7 @@ for spine in overview.spines.values():
     spine.set_visible(False)
 overview.text(
     0.10, 0.90, "DECK OVERVIEW", transform=overview.transAxes,
-    fontsize=11, fontweight="bold", color="#B9C8D4"
+    fontsize=14, fontweight="bold", color="#B9C8D4"
 )
 for y, number, label, color in [
     (0.70, len(modalities), "MODALITIES", "white"),
@@ -109,15 +109,15 @@ for y, number, label, color in [
 ]:
     overview.text(
         0.10, y, f"{number:,}", transform=overview.transAxes,
-        fontsize=29, fontweight="bold", color=color
+        fontsize=34, fontweight="bold", color=color
     )
     overview.text(
         0.10, y - 0.06, label, transform=overview.transAxes,
-        fontsize=9, fontweight="bold", color="#B9C8D4"
+        fontsize=12, fontweight="bold", color="#B9C8D4"
     )
 
 card_axis = fig.add_axes((0.33, 0.27, 0.25, 0.48))
-card_axis.set_title("CARD TYPE", fontsize=12, fontweight="bold", pad=18)
+card_axis.set_title("CARD TYPE", fontsize=16, fontweight="bold", pad=18)
 group_values = [groups["Primary"], groups["Secondary"]]
 card_axis.pie(
     group_values,
@@ -127,26 +127,26 @@ card_axis.pie(
     wedgeprops={"width": 0.42, "edgecolor": BACKGROUND, "linewidth": 3},
     autopct="%1.0f%%",
     pctdistance=0.79,
-    textprops={"color": "white", "fontweight": "bold", "fontsize": 10},
+    textprops={"color": "white", "fontweight": "bold", "fontsize": 14},
 )
 card_axis.text(
     0, 0.06, f"{len(cards):,}", ha="center", va="center",
-    fontsize=20, fontweight="bold", color=DARK_BLUE
+    fontsize=26, fontweight="bold", color=DARK_BLUE
 )
-card_axis.text(0, -0.12, "CARDS", ha="center", va="center", fontsize=9, color=MUTED)
+card_axis.text(0, -0.12, "CARDS", ha="center", va="center", fontsize=12, color=MUTED)
 card_axis.legend(
     [f"Primary  {groups['Primary']:,}", f"Secondary  {groups['Secondary']:,}"],
     loc="lower center",
     bbox_to_anchor=(0.5, -0.18),
     frameon=False,
     ncol=2,
-    fontsize=9,
+    fontsize=12,
 )
 
 topic_axis = fig.add_axes((0.62, 0.12, 0.34, 0.72))
 topic_axis.set_title(
     "MAJOR TOPICS\ninner: modality  |  outer: course",
-    fontsize=12,
+    fontsize=16,
     fontweight="bold",
     pad=16,
 )
@@ -189,7 +189,7 @@ topic_axis.pie(
     counterclock=False,
     labeldistance=1.07,
     rotatelabels=False,
-    textprops={"fontsize": 8, "color": TEXT},
+    textprops={"fontsize": 12, "color": TEXT},
     wedgeprops={"width": 0.30, "edgecolor": BACKGROUND, "linewidth": 2},
 )
 topic_axis.legend(
@@ -199,7 +199,7 @@ topic_axis.legend(
     bbox_to_anchor=(0.5, -0.12),
     frameon=False,
     ncol=min(3, len(modalities)),
-    fontsize=9,
+    fontsize=12,
 )
 
 fig.savefig(
