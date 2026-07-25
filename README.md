@@ -15,11 +15,39 @@ By centralizing content generation, contributors can update course spreadsheets 
 
 [Download the latest UBC IAA Anki deck](https://drive.google.com/drive/folders/16NqVKhlYowYreh6T2Xh8ZqJlWgYB9zbg?usp=sharing).
 
-Download `UBC-IAA-all.apkg` for the complete atlas, or choose a modality subset
-such as `UBC-IAA-anatomy.apkg`. The packages share the same notes and deck
-hierarchy, so you can switch between the complete and subset packages without
-creating duplicate cards. Updates are not installed automatically; download
-and import the newest package when a new version is released.
+### Which Anki file should I download?
+
+An `.apkg` file is a package that you open in Anki to import its cards and
+images.
+
+| File | What it contains | Who should use it |
+| --- | --- | --- |
+| `UBC-IAA-all.apkg` | Every available UBC IAA modality and course. It currently contains Anatomy and will automatically include Radio, Ophtho, and other modalities when their drives are added. | Recommended for students who want the complete atlas. |
+| `UBC-IAA-anatomy.apkg` | Only material from `Anatomy drive/`, including all available MEDD Anatomy courses. | Students who only want the Anatomy portion or need a smaller download. |
+| `UBC-IAA-radio.apkg` | Only material from `Radio drive/`. This file will be generated once that drive contains course material. | Students who only want the Radiology portion. |
+| `UBC-IAA-ophtho.apkg` | Only material from `Ophtho drive/`. This file will be generated once that drive contains course material. | Students who only want the Ophthalmology portion. |
+| `UBC-IAA-<modality>.apkg` | Only material from the matching `<Modality> drive/`. For example, `Dermatology drive/` produces `UBC-IAA-dermatology.apkg`. | Students who want any other single-modality subset. |
+
+The word `all` means the complete atlas. A modality name such as `anatomy`
+means that the file is a subset containing only that modality.
+
+Every package uses the same card identifiers and internal deck structure:
+
+```text
+UBC-IAA
+└── Anatomy
+    └── MEDD 411
+        └── Lab 2 Spine
+            ├── Primary
+            └── Secondary
+```
+
+This makes the packages interoperable. For example, you can import
+`UBC-IAA-anatomy.apkg` now and later import `UBC-IAA-all.apkg`; Anki updates
+the shared cards instead of creating a second copy.
+
+Updates are not installed automatically. Download and import the newest
+version of your chosen package whenever a new release is available.
 
 ## For contributors
 
