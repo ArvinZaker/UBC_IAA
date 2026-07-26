@@ -62,7 +62,7 @@ for workbook in content_workbooks():
         answer = value(row, headers, "answer")
         key = image_key(file_name) if file_name else ""
         image = images.get(key) or variant_images.get(key) or lowercase_images.get(key)
-        if file_name and question and answer and image:
+        if question and answer and (not file_name or image):
             cards.append(
                 {
                     "modality": modality,

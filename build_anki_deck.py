@@ -410,8 +410,6 @@ def build_package():
                 tag_text = value(row, headers, "tax", "tag")
 
                 reasons = []
-                if not file_name:
-                    reasons.append("no file name specified")
                 if not question:
                     reasons.append("no question specified")
                 if not answer:
@@ -461,13 +459,21 @@ def build_package():
                         )
                     )
 
-                if image_path not in optimized_images:
-                    optimized_path = optimize_image_for_anki(image_path, optimized_media_dir)
-                    optimized_images[image_path] = optimized_path
-                    original_media_bytes += image_path.stat().st_size
-                    optimized_media_bytes += optimized_path.stat().st_size
+                image_html = ""
+                if image_path is not None:
+                    if image_path not in optimized_images:
+                        optimized_path = optimize_image_for_anki(
+                            image_path, optimized_media_dir
+                        )
+                        optimized_images[image_path] = optimized_path
+                        original_media_bytes += image_path.stat().st_size
+                        optimized_media_bytes += optimized_path.stat().st_size
 
-                media_path = optimized_images[image_path]
+                    media_path = optimized_images[image_path]
+                    image_html = f'<img src="{html.escape(media_path.name)}">'
+                    media_files.add(str(media_path))
+                    modality_media.add(str(media_path))
+
                 group = card_group(tag_text)
                 deck_name = (
                     f"{ATLAS_ROOT}::{modality}::{course}::{lab_name(sheet)}::{group}"
@@ -478,7 +484,6 @@ def build_package():
                 )
                 modality_deck_names.add(deck_name)
 
-                image_html = f'<img src="{html.escape(media_path.name)}">'
                 attribution = value(row, headers, "attribution")
                 extras = row_extras(row, headers)
                 note = genanki.Note(
@@ -501,8 +506,6 @@ def build_package():
                     ),
                 )
                 deck.add_note(note)
-                media_files.add(str(media_path))
-                modality_media.add(str(media_path))
                 added += 1
 
         with ERROR_FILE.open("w", newline="") as file:

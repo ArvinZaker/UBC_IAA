@@ -12,6 +12,13 @@ export MPLCONFIGDIR="${CACHE_DIR}/matplotlib"
 export PIP_CACHE_DIR="${CACHE_DIR}/pip"
 export XDG_CACHE_HOME="${CACHE_DIR}"
 
+if command -v g++ >/dev/null 2>&1; then
+  libstdcpp="$(g++ -print-file-name=libstdc++.so.6)"
+  if [[ -f "${libstdcpp}" ]]; then
+    export LD_LIBRARY_PATH="$(dirname -- "${libstdcpp}"):${LD_LIBRARY_PATH:-}"
+  fi
+fi
+
 python_version() {
   "$1" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null
 }
@@ -28,14 +35,8 @@ find_python() {
   return 1
 }
 
-if ! SYSTEM_PYTHON="$(find_python)"; then
-  echo "Python ${REQUIRED_PYTHON} is required." >&2
-  echo "Install Python ${REQUIRED_PYTHON}, or run this project with: nix develop" >&2
-  exit 1
-fi
-
+venv_version=""
 if [[ -e "${VENV_DIR}" || -L "${VENV_DIR}" ]]; then
-  venv_version=""
   if [[ -x "${VENV_DIR}/bin/python" ]]; then
     venv_version="$(python_version "${VENV_DIR}/bin/python")"
   fi
@@ -48,6 +49,12 @@ if [[ -e "${VENV_DIR}" || -L "${VENV_DIR}" ]]; then
 fi
 
 if [[ ! -x "${VENV_DIR}/bin/python" ]]; then
+  if ! SYSTEM_PYTHON="$(find_python)"; then
+    echo "Python ${REQUIRED_PYTHON} is required." >&2
+    echo "Install Python ${REQUIRED_PYTHON}, or run this project with: nix develop" >&2
+    exit 1
+  fi
+
   echo "Creating .venv with Python ${REQUIRED_PYTHON}"
   "${SYSTEM_PYTHON}" -m venv "${VENV_DIR}"
 fi

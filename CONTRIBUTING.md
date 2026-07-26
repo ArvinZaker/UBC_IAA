@@ -55,13 +55,15 @@ The `SAMPLE` sheet is just an example. The deck builder ignores it.
 
 ## Adding a Card
 
-Each row in a lab sheet becomes one Anki card.
+Each row in a lab sheet becomes one Anki card. Images are optional. Leave the
+`file name` cell blank to create a text-only cloze card. If `file name` is
+filled, the matching image is required.
 
 Fill in these columns:
 
 | Column | What to put there |
 | --- | --------- |
-| `file name` | The image name, without `_P` and without `.jpg`/`.png`. |
+| `file name` | The image name, without `_P` and without `.jpg`/`.png`. Leave blank for a text-only cloze card. |
 | `Question` | The prompt, like `Identify` or `What passes through this opening?`, keep the questions similiar to what is asked on a bellringer. |
 | `Answer` | The answer students should recall. |
 | `Tag` | Usually `primary` or `secondary`. Separate multiple tags with a semicolon (`;`), for example `secondary; clinical`. |
@@ -231,14 +233,13 @@ between machines.
 
 Always open `error.csv` after building.
 
-If a row appears in `error.csv`, that row was skipped and did not make it into
-the Anki deck.
+Rows with errors were skipped. Rows reporting a fallback image are warnings;
+those cards were created with the named fallback image.
 
 Common fixes:
 
 | Error | Fix |
 | --- | --- |
-| `no file name specified` | Add the image name in the `file name` column. |
 | `no question specified` | Add a question. |
 | `no answer specified` | Add an answer. |
 | `image could not be found` | Check that the image file exists and ends in `_P`. |
@@ -249,11 +250,11 @@ Quick checklist:
 
 - [ ] Your rows are in the correct course workbook.
 - [ ] Your rows are in the correct lab sheet.
-- [ ] Every finished row has `file name`, `Question`, and `Answer`.
+- [ ] Every finished row has `Question` and `Answer`.
 - [ ] File names use underscores instead of spaces.
-- [ ] Every image file ends in `_P`.
+- [ ] Every image used by a card ends in `_P`.
 - [ ] Extra images for the same structure are named with `_1`, `_2`, etc.
-- [ ] The spreadsheet image name matches the image file name.
+- [ ] If `file name` is filled, it matches the image file name.
 - [ ] Primary ID cards are tagged `primary`.
 - [ ] Clinical or follow-up cards are tagged clearly.
 - [ ] Multiple tags, authors, or reviewers are separated with a semicolon (`;`).
