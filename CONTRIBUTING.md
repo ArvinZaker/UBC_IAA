@@ -8,6 +8,13 @@ Thanks for helping build the UBC IAA Anki deck. The short version is:
 
 This guide explains the details.
 
+## Getting Access
+
+Contact Arvin Zaker to get access to the project material:
+
+- `arvzaker@student.ubc.ca`
+- `arv.zaker@gmail.com`
+
 ## Where Things Go
 
 Content is organized by modality in folders whose names end in ` drive`, such
