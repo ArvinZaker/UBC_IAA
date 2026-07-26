@@ -193,10 +193,18 @@ def image_key(file_name):
     return stem
 
 
+def is_archived(path):
+    return any(part.casefold() == "toarchive" for part in path.parts)
+
+
 def index_images(image_root):
     images = {}
     for path in image_root.rglob("*"):
-        if path.suffix.lower() in IMAGE_EXTS and path.stem.endswith("_P"):
+        if (
+            not is_archived(path)
+            and path.suffix.lower() in IMAGE_EXTS
+            and path.stem.endswith("_P")
+        ):
             images.setdefault(path.stem[:-2], path)
     return images
 
@@ -204,7 +212,11 @@ def index_images(image_root):
 def index_lowercase_primary_images(image_root):
     images = {}
     for path in image_root.rglob("*"):
-        if path.suffix.lower() in IMAGE_EXTS and path.stem.endswith("_p"):
+        if (
+            not is_archived(path)
+            and path.suffix.lower() in IMAGE_EXTS
+            and path.stem.endswith("_p")
+        ):
             images.setdefault(path.stem[:-2], path)
     return images
 
@@ -217,7 +229,11 @@ def variant_image_key(path):
 def index_variant_images(image_root):
     images = {}
     for path in sorted(image_root.rglob("*")):
-        if path.suffix.lower() in IMAGE_EXTS and not path.stem.endswith(("_P", "_p")):
+        if (
+            not is_archived(path)
+            and path.suffix.lower() in IMAGE_EXTS
+            and not path.stem.endswith(("_P", "_p"))
+        ):
             key = variant_image_key(path)
             if key:
                 images.setdefault(key, path)
