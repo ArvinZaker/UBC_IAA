@@ -20,7 +20,7 @@ ERROR_FILE = Path("error.csv")
 IMAGE_MAX_EDGE = 1800
 IMAGE_JPEG_QUALITY = 82
 EXTRA_FIELDS = [
-    ("Attribution", ("attribution",)),
+    ("Attribution", ("attribution", "extras")),
     ("Authors", ("authors", "author")),
     ("Attribution author", ("attribution_author",)),
     ("Reviewer", ("reviewer",)),
@@ -290,11 +290,20 @@ def deck_id(deck_name):
     return 1_000_000_000 + int(digest[:8], 16)
 
 
-def note_guid(modality, course, sheet, file_name, question, answer):
-    fields = (course, sheet, file_name, question, answer)
-    if modality.lower() == "anatomy":
-        return genanki.guid_for(*fields)
-    return genanki.guid_for(modality, *fields)
+def guid_component(text):
+    return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
+
+
+def note_guid_string(modality, course, sheet, file_name, number):
+    return "_".join(
+        guid_component(value)
+        for value in (modality, course, sheet, file_name, str(number))
+    )
+
+
+def note_guid(modality, course, sheet, file_name, number):
+    guid_string = note_guid_string(modality, course, sheet, file_name, number)
+    return genanki.guid_for(guid_string)
 
 
 def row_is_empty(row):
@@ -373,6 +382,7 @@ def build_package():
     original_media_bytes = 0
     optimized_media_bytes = 0
     added = 0
+    guid_locations = {}
 
     with tempfile.TemporaryDirectory() as temp_dir:
         optimized_media_dir = Path(temp_dir) / "anki_media"
@@ -400,6 +410,7 @@ def build_package():
             images = index_images(course_image_dir)
             lowercase_primary_images = index_lowercase_primary_images(course_image_dir)
             variant_images = index_variant_images(course_image_dir)
+            card_numbers = {}
             for sheet, row_number, headers, row in workbook_rows(xlsx_path):
                 if row_is_empty(row):
                     continue
@@ -408,6 +419,12 @@ def build_package():
                 question = value(row, headers, "question")
                 answer = value(row, headers, "answer")
                 tag_text = value(row, headers, "tax", "tag")
+                file_key = file_name
+                if card_group(tag_text) == "Primary":
+                    card_number = 1
+                else:
+                    card_number = card_numbers.get((sheet, file_key), 2)
+                    card_numbers[(sheet, file_key)] = card_number + 1
 
                 reasons = []
                 if not question:
@@ -444,6 +461,19 @@ def build_package():
                         )
                     )
                     continue
+
+                guid_input = note_guid_string(
+                    modality, course, sheet, file_name, card_number
+                )
+                guid = genanki.guid_for(guid_input)
+                previous = guid_locations.get(guid)
+                if previous is not None:
+                    raise ValueError(
+                        "Duplicate GUID: "
+                        f"{guid_input} ({guid}) at {xlsx_path}:{sheet}!row {row_number}; "
+                        f"already used at {previous}"
+                    )
+                guid_locations[guid] = f"{xlsx_path}:{sheet}!row {row_number}"
 
                 if fallback_reason:
                     errors.append(
@@ -502,7 +532,7 @@ def build_package():
                         )
                     ),
                     guid=note_guid(
-                        modality, course, sheet, file_name, question, answer
+                        modality, course, sheet, file_name, card_number
                     ),
                 )
                 deck.add_note(note)
