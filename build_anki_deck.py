@@ -411,6 +411,7 @@ def build_package():
             lowercase_primary_images = index_lowercase_primary_images(course_image_dir)
             variant_images = index_variant_images(course_image_dir)
             card_numbers = {}
+            blank_numbers = {}
             for sheet, row_number, headers, row in workbook_rows(xlsx_path):
                 if row_is_empty(row):
                     continue
@@ -420,6 +421,12 @@ def build_package():
                 answer = value(row, headers, "answer")
                 tag_text = value(row, headers, "tax", "tag")
                 file_key = file_name
+                if file_name:
+                    guid_file_name = file_name
+                else:
+                    blank_number = blank_numbers.get(sheet, 0) + 1
+                    blank_numbers[sheet] = blank_number
+                    guid_file_name = f"blank{blank_number}"
                 if card_group(tag_text) == "Primary":
                     card_number = 1
                 else:
@@ -463,7 +470,7 @@ def build_package():
                     continue
 
                 guid_input = note_guid_string(
-                    modality, course, sheet, file_name, card_number
+                    modality, course, sheet, guid_file_name, card_number
                 )
                 guid = genanki.guid_for(guid_input)
                 previous = guid_locations.get(guid)
