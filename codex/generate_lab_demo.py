@@ -23,7 +23,7 @@ from build_anki_deck import (
 
 WORKBOOK = Path("Anatomy drive/MEDD_422_content.xlsx")
 SHEET = "Lab3_Forearm"
-OUTPUT_PATH = Path("UBC-IAA-demo.html")
+OUTPUT_PATH = Path("index.html")
 ASSET_DIR = Path("demo-assets")
 
 
