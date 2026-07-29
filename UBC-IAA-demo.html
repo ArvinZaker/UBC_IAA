@@ -1,0 +1,1357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MEDD 422 - Lab 3 Forearm</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Arial, sans-serif;
+      background: #f6f6f3;
+      color: #171717;
+      --border: #d8d8d2;
+      --muted: #62625b;
+      --surface: #ffffff;
+      --surface-soft: #f7f7f3;
+      --accent: #1f6f68;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #f6f6f3;
+    }
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 18px;
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .title-block {
+      min-width: 0;
+    }
+    .eyebrow {
+      margin: 0 0 2px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.2;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .toolbar-label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .deck-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      border: 1px solid #bbbbB2;
+      border-radius: 6px;
+      padding: 0 10px;
+      background: var(--surface);
+      color: #171717;
+      font: inherit;
+      font-size: 14px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .answer-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 32px;
+      padding: 0 8px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: #171717;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .answer-control input {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .answer-control input:disabled,
+    .answer-control input:disabled + span {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+    main {
+      display: grid;
+      gap: 18px;
+      padding: 18px;
+    }
+    .slide {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+      grid-template-areas:
+        "qa image"
+        "attribution attribution"
+        "credits credits";
+      gap: 24px 28px;
+      align-items: start;
+      min-height: 0;
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .qa-list {
+      grid-area: qa;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-self: start;
+    }
+    .qa {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      padding: 14px;
+      text-align: left;
+      background: #fafaf7;
+      border: 1px solid #d2d2ca;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .question {
+      display: block;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+    .answer-toggle {
+      margin-top: 10px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #77776f;
+      font: inherit;
+      font-size: 14px;
+      font-style: italic;
+      cursor: pointer;
+    }
+    .answer {
+      display: block;
+      margin-top: 9px;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+    .card-metadata {
+      margin-top: 10px;
+      color: #6a746f;
+      font-size: 11px;
+      line-height: 1.3;
+    }
+    .qa.hidden .answer {
+      display: none;
+    }
+    .image-review {
+      grid-area: image;
+      position: relative;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      min-width: 0;
+      align-self: start;
+    }
+    .image-stage {
+      position: relative;
+      display: grid;
+      place-items: start center;
+      width: 100%;
+      height: min(70vh, 720px);
+      min-height: 0;
+      cursor: zoom-in;
+    }
+    .image-stage img {
+      display: none;
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .image-stage img.active {
+      display: block;
+    }
+    .image-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid #d8d8d2;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+    .image-controls button {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 1px solid #bbbbB2;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #171717;
+      font: inherit;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .zoom-lens {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+      display: none;
+      width: 120px;
+      height: 120px;
+      background: rgba(255, 255, 255, 0.28);
+      border: 1px solid rgba(31, 111, 104, 0.9);
+      border-radius: 6px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+      pointer-events: none;
+    }
+    .zoom-pane {
+      position: absolute;
+      top: 56px;
+      right: 10px;
+      z-index: 3;
+      display: none;
+      width: min(320px, 44%);
+      aspect-ratio: 1;
+      background-color: #ffffff;
+      background-repeat: no-repeat;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+      pointer-events: none;
+    }
+    .image-review.zooming .zoom-lens,
+    .image-review.zooming .zoom-pane {
+      display: block;
+    }
+    .image-count {
+      min-width: 42px;
+      color: #55554f;
+      font-size: 13px;
+      text-align: center;
+    }
+    .attribution {
+      grid-area: attribution;
+      padding: 12px;
+      background: #f2f2ed;
+      border: 1px solid #d8d8d2;
+      border-radius: 8px;
+      font-size: 11px;
+      line-height: 1.3;
+    }
+    .attribution p {
+      min-height: 0;
+      margin: 6px 0 0;
+    }
+    .credits {
+      grid-area: credits;
+      color: #55554f;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+    @media (max-width: 800px) {
+      .slide {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "qa"
+          "image"
+          "attribution"
+          "credits";
+      }
+      .app-header {
+        grid-template-columns: auto minmax(0, 1fr);
+      }
+      .toolbar {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+      }
+      h1 {
+        font-size: 16px;
+      }
+      .zoom-lens,
+      .zoom-pane {
+        display: none !important;
+      }
+      .image-stage {
+        cursor: default;
+        height: auto;
+      }
+    }
+    @media (hover: none) {
+      .zoom-lens,
+      .zoom-pane {
+        display: none !important;
+      }
+      .image-stage {
+        cursor: default;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <a class="deck-link" href="index.html">Decks</a>
+    <div class="title-block">
+      <p class="eyebrow">UBC-IAA</p>
+      <h1>MEDD 422 - Lab 3 Forearm</h1>
+    </div>
+    <nav class="toolbar" aria-label="Review controls">
+      <span class="toolbar-label">Answers</span>
+      <label class="answer-control">
+        <input type="checkbox" id="toggle-primary" data-group="primary" checked>
+        <span>Primary</span>
+      </label>
+      <label class="answer-control">
+        <input type="checkbox" id="toggle-secondary" data-group="secondary" checked>
+        <span>Secondary</span>
+      </label>
+      <label class="answer-control">
+        <input type="checkbox" id="toggle-all" data-group="all" checked>
+        <span>All</span>
+      </label>
+    </nav>
+  </header>
+  <main>
+    
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What structure(s) attach at this location?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Common flexor tendon</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What structure passes near this location?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Ulnar nerve</div>
+              <div class="card-metadata">Extras: Reason for the expression &quot;funny bone&quot;</div>
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/humerus_medial_epicondyle_p.jpg"
+          alt="humerus_medial_epicondyle_P"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p>Reason for the expression &quot;funny bone&quot;</p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What structure(s) attach at this location?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Common extensor tendon</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/humerus_lateral_epicondyle_p.jpg"
+          alt="humerus_lateral_epicondyle_P"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Pronation of the forearm</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Median nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/pronator_teres.jpg"
+          alt="pronator_teres"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Flexion and abduction of the wrist (radial deviation)</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Median nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/flexor_carpi_radialis_p.jpg"
+          alt="flexor_carpi_radialis_P"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Flexion and adduction of the wrist (ulnar deviation)</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Ulnar nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/flexor_carpi_ulnaris_p.jpg"
+          alt="flexor_carpi_ulnaris_P"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Wrist flexion</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Median nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/palmaris_longus_p.jpg"
+          alt="palmaris_longus_P"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Flexion of the PIP joints of digits 2-5</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Median nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/flexor_digitorum_superficialis_1_p.jpg"
+          alt="flexor_digitorum_superficialis_1_P"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Flexion of the DIP joints of digits 2-5</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Lateral half (digits 2-3) via median nerve; medial half (digits 4-5) via ulnar nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/flexor_digitorum_profundus_1_p.jpg"
+          alt="flexor_digitorum_profundus_1_P"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Flexion of the thumb, mainly at the IP joint</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Media nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/flexor_pollicis_longus_1_p.jpg"
+          alt="flexor_pollicis_longus_1_P"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Pronation of the forearm</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Median nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/pronator_quadratus.jpg"
+          alt="pronator_quadratus"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Extension and abduction of the wrist (radial deviation)</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Radial nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/extensor_carpi_radialis_longus.jpg"
+          alt="extensor_carpi_radialis_longus"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Extension and abduction of the wrist</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Deep branch of radial nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/extensor_carpi_radialis_brevis.jpg"
+          alt="extensor_carpi_radialis_brevis"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Extension of digits 2-5 mainly at the MCP joints</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Posterior interosseous nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/extensor_digitorum.jpg"
+          alt="extensor_digitorum"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Extension of the little finger</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Posterior interosseous nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/extensor_digiti_minimi.jpg"
+          alt="extensor_digiti_minimi"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Extension and adduction of the wrist (ulnar deviation)</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Posterior interosseous nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/extensor_carpi_ulnaris.jpg"
+          alt="extensor_carpi_ulnaris"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Supination of the forearm</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Deep branch of radial nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/supinator.jpg"
+          alt="supinator"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Extension of the index finger</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Posterior interosseous nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/extensor_indicis.jpg"
+          alt="extensor_indicis"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Abduction and extension of the thumb at the CMC joint</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Posterior interosseous nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/abductor_pollicis_longus.jpg"
+          alt="abductor_pollicis_longus"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Extension of the proximal phalanx of the thumb at the MCP joint</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Posterior interosseous nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/extensor_pollicis_brevis.jpg"
+          alt="extensor_pollicis_brevis"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+
+    <section class="slide">
+      <div class="qa-list">
+        
+            <article class="qa" data-group="secondary">
+              <div class="question">What is the primary action of this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Extension of the distal phalanx of the thumb at the IP joint</div>
+              
+            </article>
+            
+            <article class="qa" data-group="secondary">
+              <div class="question">What nerve innervates this structure?</div>
+              <button class="answer-toggle" type="button" aria-expanded="true">click to hide</button>
+              <div class="answer">Posterior interosseous nerve</div>
+              
+            </article>
+            
+      </div>
+      
+    <figure class="image-review" data-current="0">
+      
+      <div class="image-stage">
+        
+        <img
+          class="active"
+          src="demo-assets/extensor_pollicis_longus.jpg"
+          alt="extensor_pollicis_longus"
+          aria-hidden="false"
+        >
+        
+      </div>
+      <div class="zoom-lens" aria-hidden="true"></div>
+      <div class="zoom-pane" aria-hidden="true"></div>
+    </figure>
+    
+      <aside class="attribution">
+        <strong>Extras</strong>
+        <p></p>
+      </aside>
+      <footer class="credits">Image author: David Anton | Reviewer:  | Final approval:  | Comment: </footer>
+    </section>
+    
+  </main>
+  <script>
+    function setPanel(card, hidden) {
+      const button = card.querySelector(".answer-toggle");
+      card.classList.toggle("hidden", hidden);
+      button.textContent = hidden ? "click to reveal" : "click to hide";
+      button.setAttribute("aria-expanded", hidden ? "false" : "true");
+    }
+
+    const primaryToggle = document.getElementById("toggle-primary");
+    const secondaryToggle = document.getElementById("toggle-secondary");
+    const allToggle = document.getElementById("toggle-all");
+
+    function cardsFor(group) {
+      if (group === "all") return Array.from(document.querySelectorAll(".qa"));
+      return Array.from(document.querySelectorAll(`.qa[data-group="${group}"]`));
+    }
+
+    function setToggleState(toggle, cards) {
+      const visible = cards.filter((card) => !card.classList.contains("hidden")).length;
+      toggle.disabled = cards.length === 0;
+      toggle.checked = cards.length > 0 && visible === cards.length;
+      toggle.indeterminate = visible > 0 && visible < cards.length;
+    }
+
+    function syncAnswerControls() {
+      setToggleState(primaryToggle, cardsFor("primary"));
+      setToggleState(secondaryToggle, cardsFor("secondary"));
+      setToggleState(allToggle, cardsFor("all"));
+    }
+
+    primaryToggle.addEventListener("change", () => {
+      cardsFor("primary").forEach((card) => setPanel(card, !primaryToggle.checked));
+      syncAnswerControls();
+    });
+
+    secondaryToggle.addEventListener("change", () => {
+      cardsFor("secondary").forEach((card) => setPanel(card, !secondaryToggle.checked));
+      syncAnswerControls();
+    });
+
+    allToggle.addEventListener("change", () => {
+      cardsFor("all").forEach((card) => setPanel(card, !allToggle.checked));
+      syncAnswerControls();
+    });
+
+    document.querySelectorAll(".answer-toggle").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const card = button.closest(".qa");
+        setPanel(card, !card.classList.contains("hidden"));
+        syncAnswerControls();
+      });
+    });
+
+    document.querySelectorAll(".qa").forEach((card) => {
+      card.addEventListener("click", () => {
+        setPanel(card, !card.classList.contains("hidden"));
+        syncAnswerControls();
+      });
+    });
+
+    syncAnswerControls();
+
+    function hideZoom(figure) {
+      figure.classList.remove("zooming");
+    }
+
+    function updateZoom(figure, event) {
+      if (!window.matchMedia("(hover: hover)").matches) {
+        hideZoom(figure);
+        return;
+      }
+
+      const image = figure.querySelector(".image-stage img.active");
+      const lens = figure.querySelector(".zoom-lens");
+      const pane = figure.querySelector(".zoom-pane");
+      if (!image || !lens || !pane) return;
+
+      const imageRect = image.getBoundingClientRect();
+      const x = event.clientX - imageRect.left;
+      const y = event.clientY - imageRect.top;
+      if (x < 0 || y < 0 || x > imageRect.width || y > imageRect.height) {
+        hideZoom(figure);
+        return;
+      }
+
+      const zoom = 2.5;
+      figure.classList.add("zooming");
+
+      const figureRect = figure.getBoundingClientRect();
+      const paneRect = pane.getBoundingClientRect();
+      const clamp = (value, min, max) => Math.max(min, Math.min(value, max));
+      const lensWidth = Math.min(imageRect.width, paneRect.width / zoom);
+      const lensHeight = Math.min(imageRect.height, paneRect.height / zoom);
+      const lensX = imageRect.left - figureRect.left + clamp(x - lensWidth / 2, 0, imageRect.width - lensWidth);
+      const lensY = imageRect.top - figureRect.top + clamp(y - lensHeight / 2, 0, imageRect.height - lensHeight);
+
+      lens.style.width = `${lensWidth}px`;
+      lens.style.height = `${lensHeight}px`;
+      lens.style.transform = `translate3d(${lensX}px, ${lensY}px, 0)`;
+
+      const backgroundWidth = imageRect.width * zoom;
+      const backgroundHeight = imageRect.height * zoom;
+      const backgroundX = clamp(paneRect.width / 2 - x * zoom, paneRect.width - backgroundWidth, 0);
+      const backgroundY = clamp(paneRect.height / 2 - y * zoom, paneRect.height - backgroundHeight, 0);
+
+      pane.style.backgroundImage = `url("${image.currentSrc || image.src}")`;
+      pane.style.backgroundSize = `${backgroundWidth}px ${backgroundHeight}px`;
+      pane.style.backgroundPosition = `${backgroundX}px ${backgroundY}px`;
+    }
+
+    function setImage(figure, index) {
+      const images = Array.from(figure.querySelectorAll(".image-stage img"));
+      if (!images.length) return;
+
+      hideZoom(figure);
+      const nextIndex = (index + images.length) % images.length;
+      figure.dataset.current = String(nextIndex);
+      images.forEach((image, imageIndex) => {
+        const active = imageIndex === nextIndex;
+        image.classList.toggle("active", active);
+        image.setAttribute("aria-hidden", active ? "false" : "true");
+      });
+
+      const counter = figure.querySelector(".image-count");
+      if (counter) {
+        counter.textContent = `${nextIndex + 1} / ${images.length}`;
+      }
+    }
+
+    document.querySelectorAll(".image-review").forEach((figure) => {
+      setImage(figure, Number(figure.dataset.current || 0));
+      const stage = figure.querySelector(".image-stage");
+
+      figure.querySelector(".image-prev")?.addEventListener("click", () => {
+        setImage(figure, Number(figure.dataset.current || 0) - 1);
+      });
+
+      figure.querySelector(".image-next")?.addEventListener("click", () => {
+        setImage(figure, Number(figure.dataset.current || 0) + 1);
+      });
+
+      stage?.addEventListener("pointermove", (event) => updateZoom(figure, event));
+      stage?.addEventListener("pointerleave", () => hideZoom(figure));
+    });
+  </script>
+</body>
+</html>
