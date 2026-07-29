@@ -85,6 +85,8 @@ def collect_decks():
     image_editions = index_image_editions(image_dir_for_workbook(WORKBOOK) / SHEET)
     decks = {}
     skipped = 0
+    candidate_rows = []
+    secondary_keys = set()
 
     course = course_name(WORKBOOK)
     for sheet, _row_number, headers, row in workbook_rows(WORKBOOK):
@@ -97,13 +99,19 @@ def collect_decks():
         question = value(row, headers, "question")
         answer = value(row, headers, "answer")
         tag_text = value(row, headers, "tax", "tag")
-        if card_group(tag_text) != "Secondary":
-            continue
         key = image_key(file_name) if file_name else ""
         image_paths = image_editions.get(key, [])
 
         if not file_name or not question or not answer or not image_paths:
             skipped += 1
+            continue
+
+        candidate_rows.append((key, image_paths, question, answer, tag_text, row, headers))
+        if card_group(tag_text) == "Secondary":
+            secondary_keys.add(key)
+
+    for key, image_paths, question, answer, tag_text, row, headers in candidate_rows:
+        if key not in secondary_keys:
             continue
 
         pages = decks.setdefault((course, sheet), {})
