@@ -16,6 +16,7 @@ from build_anki_deck import (
     index_variant_images,
     modality_name,
     row_is_empty,
+    split_people,
     value,
     workbook_rows,
 )
@@ -39,8 +40,24 @@ def lighter(color, amount):
 cards = []
 courses = set()
 sections = set()
+contributors = set()
+workbooks = [
+    workbook for workbook in content_workbooks()
+    if modality_name(workbook).casefold() == "anatomy"
+]
+all_images = {}
+all_lowercase_images = {}
+all_variant_images = {}
+for workbook in workbooks:
+    image_dir = image_dir_for_workbook(workbook)
+    for key, path in index_images(image_dir).items():
+        all_images.setdefault(key, path)
+    for key, path in index_lowercase_primary_images(image_dir).items():
+        all_lowercase_images.setdefault(key, path)
+    for key, path in index_variant_images(image_dir).items():
+        all_variant_images.setdefault(key, path)
 
-for workbook in content_workbooks():
+for workbook in workbooks:
     modality = modality_name(workbook)
     course = course_name(workbook)
     courses.add((modality, course))
@@ -60,8 +77,17 @@ for workbook in content_workbooks():
         )
         question = value(row, headers, "question")
         answer = value(row, headers, "answer")
+        contributors.update(split_people(value(row, headers, "authors", "author")))
+        contributors.update(split_people(value(row, headers, "reviewer")))
         key = image_key(file_name) if file_name else ""
-        image = images.get(key) or variant_images.get(key) or lowercase_images.get(key)
+        image = (
+            images.get(key)
+            or variant_images.get(key)
+            or lowercase_images.get(key)
+            or all_images.get(key)
+            or all_variant_images.get(key)
+            or all_lowercase_images.get(key)
+        )
         if question and answer and (not file_name or image):
             cards.append(
                 {
@@ -80,7 +106,7 @@ course_counts = Counter((card["modality"], card["course"]) for card in cards)
 modalities = sorted(modality_counts)
 
 plt.rcParams.update({"font.family": "DejaVu Sans", "text.color": TEXT})
-fig = plt.figure(figsize=(14, 8), facecolor=BACKGROUND)
+fig = plt.figure(figsize=(14, 9), facecolor=BACKGROUND)
 fig.suptitle(
     "UBC IAA  |  ATLAS DECK OVERVIEW",
     x=0.06,
@@ -91,7 +117,7 @@ fig.suptitle(
     color=DARK_BLUE,
 )
 
-overview = fig.add_axes((0.06, 0.16, 0.22, 0.68))
+overview = fig.add_axes((0.06, 0.22, 0.22, 0.62))
 overview.set_facecolor(DARK_BLUE)
 overview.set_xticks([])
 overview.set_yticks([])
@@ -116,7 +142,7 @@ for y, number, label, color in [
         fontsize=12, fontweight="bold", color="#B9C8D4"
     )
 
-card_axis = fig.add_axes((0.33, 0.27, 0.25, 0.48))
+card_axis = fig.add_axes((0.33, 0.32, 0.25, 0.43))
 card_axis.set_title("CARD TYPE", fontsize=16, fontweight="bold", pad=18)
 group_values = [groups["Primary"], groups["Secondary"]]
 card_axis.pie(
@@ -143,7 +169,7 @@ card_axis.legend(
     fontsize=12,
 )
 
-topic_axis = fig.add_axes((0.62, 0.12, 0.34, 0.72))
+topic_axis = fig.add_axes((0.62, 0.20, 0.34, 0.64))
 topic_axis.set_title(
     "MAJOR TOPICS\ninner: modality  |  outer: course",
     fontsize=16,
@@ -200,6 +226,15 @@ topic_axis.legend(
     frameon=False,
     ncol=min(3, len(modalities)),
     fontsize=12,
+)
+
+fig.text(
+    0.06, 0.08, "CONTRIBUTORS", ha="left", va="center",
+    fontsize=13, fontweight="bold", color=DARK_BLUE,
+)
+fig.text(
+    0.06, 0.045, "  •  ".join(sorted(contributors)), ha="left", va="center",
+    fontsize=12, color=TEXT,
 )
 
 fig.savefig(
